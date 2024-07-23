@@ -74,6 +74,7 @@ namespace ryfi {
 
         // Push the packet onto the queue
         packets.push(pkt);
+        return true;
     }
 
     bool Transmitter::txFrame(const Frame& frame) {

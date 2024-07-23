@@ -58,7 +58,7 @@ void BladeRF::start() {
     const bladerf_range* gr;
     err = bladerf_get_gain_range(dev, BLADERF_CHANNEL_TX(0), &gr);
     if (err) { throw std::runtime_error("Failed to get TX gain range"); }
-    err = bladerf_set_gain(dev, BLADERF_CHANNEL_TX(0), gr->max);
+    err = bladerf_set_gain(dev, BLADERF_CHANNEL_TX(0), 40);
     if (err) { throw std::runtime_error("Failed to set TX gain"); }
 
     // Start synchronous streaming

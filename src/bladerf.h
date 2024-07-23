@@ -3,6 +3,7 @@
 #include <libbladeRF.h>
 #include "dsp/stream.h"
 #include "dsp/types.h"
+#include <stddef.h>
 
 class BladeRF {
 public:

@@ -11,7 +11,6 @@ namespace ryfi {
             throw std::runtime_error("Content size is too large to fit in a packet");
         }
 
-
         // Allocate the buffer
         allocate(size);
 

@@ -53,6 +53,6 @@ else()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs pthread)
-        target_include_directories(bladerf_source PRIVATE "/usr/local/include")
+        target_include_directories(${PROJECT_NAME} PRIVATE "/usr/local/include")
     endif ()
 endif ()

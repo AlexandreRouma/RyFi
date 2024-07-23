@@ -9,15 +9,16 @@
 #include <fstream>
 #include "bladerf.h"
 #include "dsp/sink/null_sink.h"
+#include <stddef.h>
 
 #define SDR_SAMPLERATE  1.5e6
 
 #define RX_BAUDRATE     720e3
 #define RX_BANDWIDTH    800e3
-#define RX_FREQ         435e6
+#define RX_FREQ         2315e6
 
 #define TX_BAUDRATE     720e3
-#define TX_FREQ         2315e6
+#define TX_FREQ         435e6
 
 
 
