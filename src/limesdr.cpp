@@ -34,6 +34,11 @@ void LimeSDR::start() {
         throw std::runtime_error("Failed to open device");
     }
 
+    // Init the device
+    if (LMS_Init(dev)) {
+        throw std::runtime_error("Failed to initialize the device");
+    }
+
     // List antennas
     lms_name_t rxAntennas[16];
     lms_name_t txAntennas[16];
