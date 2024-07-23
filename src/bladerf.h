@@ -33,10 +33,6 @@ private:
 
     // Device
     struct bladerf *dev = NULL;
-    
-    // Buffers
-    int16_t* rxSamps;
-    int16_t* txSamps;
 
     // Status
     bool running = false;

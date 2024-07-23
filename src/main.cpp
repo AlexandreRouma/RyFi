@@ -4,10 +4,10 @@
 #include "dsp/loop/fast_agc.h"
 #include "dsp/taps/low_pass.h"
 #include "dsp/filter/fir.h"
-#include <libbladeRF.h>
 #include <signal.h>
 #include <fstream>
 #include "bladerf.h"
+#include "limesdr.h"
 #include "dsp/sink/null_sink.h"
 #include <stddef.h>
 #include "tun.h"
@@ -54,7 +54,8 @@ int main() {
 
     // Initialize the SDR
     flog::info("Initialising the SDR...");
-    BladeRF sdr(&agc.out, SDR_SAMPLERATE, RX_FREQ, TX_FREQ);
+    //BladeRF sdr(&agc.out, SDR_SAMPLERATE, RX_FREQ, TX_FREQ);
+    LimeSDR sdr(&agc.out, SDR_SAMPLERATE, RX_FREQ, TX_FREQ);
 
     // Intialize the RX DSP
     flog::info("Initialising the receiver...");

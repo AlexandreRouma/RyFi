@@ -10,19 +10,11 @@ BladeRF::BladeRF(dsp::stream<dsp::complex_t>* in, double samplerate, double rxFr
     this->samplerate = samplerate;
     this->rxFrequency = rxFrequency;
     this->txFrequency = txFrequency;
-
-    // Allocate the sample buffers
-    rxSamps = dsp::buffer::alloc<int16_t>(STREAM_BUFFER_SIZE);
-    txSamps = dsp::buffer::alloc<int16_t>(STREAM_BUFFER_SIZE);
 }
 
 BladeRF::~BladeRF() {
     // Stop the device
     stop();
-
-    // Free the sample buffers
-    dsp::buffer::free(rxSamps);
-    dsp::buffer::free(txSamps);
 }
 
 void BladeRF::start() {
@@ -101,31 +93,43 @@ void BladeRF::stop() {
 void BladeRF::rxWorker() {
     int sampleCount = samplerate / 200;
 
+    // Allocate the sample buffers
+    int16_t* samps = dsp::buffer::alloc<int16_t>(sampleCount*2);
+
     while (true) {
         // Receive the samples to the device
-        bladerf_sync_rx(dev, rxSamps, sampleCount, NULL, 3500);
+        bladerf_sync_rx(dev, samps, sampleCount, NULL, 3500);
 
         // Convert the samples to complex float
-        volk_16i_s32f_convert_32f((float*)out.writeBuf, rxSamps, 2048.0f, sampleCount*2);
+        volk_16i_s32f_convert_32f((float*)out.writeBuf, samps, 2048.0f, sampleCount*2);
 
         // Send off the samples
         if (!out.swap(sampleCount)) { break; }
     }
+
+    // Free the sample buffer
+    delete[] samps;
 }
 
 void BladeRF::txWorker() {
+    // Allocate the sample buffers
+    int16_t* samps = dsp::buffer::alloc<int16_t>(STREAM_BUFFER_SIZE*2);
+
     while (true) {
         // Get the transmitter samples
         int count = in->read();
         if (count <= 0) { break; }
 
         // Convert the samples to 16bit PCM
-        volk_32f_s32f_convert_16i(txSamps, (float*)in->readBuf, 2048.0f, count*2);
+        volk_32f_s32f_convert_16i(samps, (float*)in->readBuf, 2048.0f, count*2);
 
         // Flush the modulator stream
         in->flush();
 
         // Send the samples to the device
-        bladerf_sync_tx(dev, txSamps, count, NULL, 3500);
+        bladerf_sync_tx(dev, samps, count, NULL, 3500);
     }
+
+    // Free the sample buffer
+    delete[] samps;
 }

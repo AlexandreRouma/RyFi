@@ -21,7 +21,7 @@ if (MSVC)
     target_include_directories(${PROJECT_NAME} PRIVATE "C:/Program Files/PothosSDR/include/")
 
     # Volk
-    target_link_libraries(${PROJECT_NAME} PRIVATE volk bladeRF)
+    target_link_libraries(${PROJECT_NAME} PRIVATE volk bladeRF LimeSuite)
 
     # FFTW3
     find_package(FFTW3f CONFIG REQUIRED)
@@ -49,6 +49,7 @@ else()
         ${FFTW3_LIBRARIES}
         ${VOLK_LIBRARIES}
         ${LIBBLADERF_LIBRARIES}
+        LimeSuite
     )
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
