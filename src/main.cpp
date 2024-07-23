@@ -10,6 +10,7 @@
 #include "bladerf.h"
 #include "dsp/sink/null_sink.h"
 #include <stddef.h>
+#include "tun.h"
 
 #define SDR_SAMPLERATE  1.5e6
 
@@ -27,8 +28,10 @@ void intHandler(int dummy) {
     run = false;
 }
 
+int iface;
+
 void packetHandler(ryfi::Packet pkt) {
-    flog::debug("Got packet: '{}'", (char*)pkt.data());
+    write(iface, pkt.data(), pkt.size());
 }
 
 int main() {
@@ -36,6 +39,13 @@ int main() {
 
     // Catch CTRL+C
     signal(SIGINT, intHandler);
+
+    // Create the TUN interface
+    iface = tun::open("ryfi0");
+    if (!iface) {
+        flog::error("Failed to create TUN interface");
+        return -1;
+    }
 
     // Intialize the TX DSP
     flog::info("Initialising the transmitter...");
@@ -69,21 +79,24 @@ int main() {
     }
     catch (const std::exception& e) {
         flog::error("Failed to start SDR: {}", e.what());
+        tx.stop();
+        agc.stop();
+        lp.stop();
+        rx.stop();
+        ns.stop();
         return -1;
     }
 
     // Do nothing
     flog::info("Ready!");
     while (run) {
-        // Read a line
-        printf("\n> ");
-        char line[1024];
-        scanf("%[^\n]", line);
-        char dummy;
-        fread(&dummy, 1, 1, stdin);
+        // Read an IP packet
+        uint8_t test[ryfi::Packet::MAX_CONTENT_SIZE];
+        int ret = read(iface, test, ryfi::Packet::MAX_CONTENT_SIZE);
+        if (ret <= 0) { continue; }
 
-        // Send it including the null byte
-        tx.send(ryfi::Packet((uint8_t*)line, strlen(line)+1));
+        // Send it
+        tx.send(ryfi::Packet(test, ret));
     }
 
     // Stop the SDR
