@@ -56,16 +56,17 @@ void sendWorker(ryfi::Transmitter& tx) {
 int main(int argc, char** argv) {
     // Define the command line interface
     cli::Interface cli;
-    cli.arg("device",   'd', "ryfi0",       "TUN Device Name");
-    cli.arg("config",   'c', "",            "Load parameters from config");
-    cli.arg("rxdev",    'i', "",            "Receive Device");
-    cli.arg("txdev",    'o', "",            "Transmit Device");
-    cli.arg("rxfreq",   'r', 435e6,         "Receive Frequency");
-    cli.arg("txfreq",   't', 2315e6,        "Transmit Frequency");
-    cli.arg("baudrate", 'b', 720e3,         "Baudrate");
-    cli.arg("udpdump",  'u', false,         "Export samples to UDP for monitoring");
-    cli.arg("udphost",  'a', "localhost",   "UDP Host for RX Sample Export");
-    cli.arg("udpport",  'p', 1234,          "UDP Port for RX Sample Export");
+    cli.arg("device",       'd', "ryfi0",       "TUN Device Name");
+    cli.arg("config",       'c', "",            "Load parameters from a configuration file");
+    cli.arg("rxdev",        'i', "",            "Receive SDR Device");
+    cli.arg("txdev",        'o', "",            "Transmit SDR Device");
+    cli.arg("rxfreq",       'r', 435e6,         "Receive Frequency");
+    cli.arg("txfreq",       't', 2315e6,        "Transmit Frequency");
+    cli.arg("baudrate",     'b', 720e3,         "Baudrate");
+    cli.arg("udpdump",      'u', false,         "Dump RX samples to UDP for monitoring");
+    cli.arg("udphost",      'a', "localhost",   "UDP host for RX sample dump");
+    cli.arg("udpport",      'p', 1234,          "UDP port for RX sample dump");
+    cli.arg("genconfig",    0,   "",            "Save parameters to a configuration file and exit");
 
     // Parse the command line
     cli::Command cmd;
