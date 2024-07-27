@@ -1,7 +1,18 @@
 #include "transmitter.h"
 
 namespace ryfi {
+    Transmitter::Transmitter() {}
+
     Transmitter::Transmitter(double baudrate, double samplerate) {
+        init(baudrate, samplerate);
+    }
+
+    Transmitter::~Transmitter() {
+        // Stop everything
+        stop();
+    }
+
+    void Transmitter::init(double baudrate, double samplerate) {
         // Initialize the DSP
         rs.setInput(&in);
         conv.setInput(&rs.out);
@@ -20,11 +31,6 @@ namespace ryfi {
 
         rrc.init(&resamp.out, rrcTaps);
         out = &rrc.out;
-    }
-
-    Transmitter::~Transmitter() {
-        // Stop everything
-        stop();
     }
 
     void Transmitter::start() {

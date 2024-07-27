@@ -7,11 +7,32 @@ add_executable(${PROJECT_NAME} ${SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "vendor/")
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
 add_subdirectory("libcorrect/")
-target_include_directories(${PROJECT_NAME} PUBLIC "libcorrect/include")
-target_link_libraries(${PROJECT_NAME} PUBLIC correct_static)
+target_include_directories(${PROJECT_NAME} PRIVATE "libcorrect/include")
+target_link_libraries(${PROJECT_NAME} PRIVATE correct_static)
+
+# Compiler flags
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+    # Debug Flags
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /std:c++17 /EHsc)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${PROJECT_NAME} PRIVATE -g -Og -std=c++17 -Wno-unused-command-line-argument -undefined dynamic_lookup)
+    else ()
+        target_compile_options(${PROJECT_NAME} PRIVATE -g -Og -std=c++17)
+    endif ()
+else()
+    # Normal Flags
+    if (MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /O2 /Ob2 /std:c++17 /EHsc)
+    elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -std=c++17 -Wno-unused-command-line-argument -undefined dynamic_lookup)
+    else ()
+        target_compile_options(${PROJECT_NAME} PRIVATE -O3 -std=c++17)
+    endif ()
+endif()
 
 if (MSVC)
     # Lib path

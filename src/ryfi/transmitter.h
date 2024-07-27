@@ -13,6 +13,9 @@
 namespace ryfi {
     class Transmitter {
     public:
+        // Default constructor
+        Transmitter();
+
         /**
          * Create a transmitter.
          * @param baudrate Baudrate to use over the air.
@@ -22,6 +25,13 @@ namespace ryfi {
 
         // Destructor
         ~Transmitter();
+
+        /**
+         * Create a transmitter.
+         * @param baudrate Baudrate to use over the air.
+         * @param samplerate Samplerate of the baseband.
+        */
+        void init(double baudrate, double samplerate);
 
         /**
          * Start the transmitter's DSP.
