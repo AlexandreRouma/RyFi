@@ -81,9 +81,6 @@ int main(int argc, char** argv) {
     // Show info line
     flog::info("RyFi v" RYFI_VERSION " by Ryzerth ON5RYZ");
 
-    // Catch CTRL+C
-    signal(SIGINT, intHandler);
-
     // Create the TUN interface
     std::string iface = cmd["device"];
     flog::info("Creating the TUN interface '{}'...", iface);
@@ -138,9 +135,15 @@ int main(int argc, char** argv) {
     // Start the sender thread
     std::thread sendThread(sendWorker, tx);
 
+    // Set CTRL+C handler
+    signal(SIGINT, intHandler);
+
     // Do nothing
     flog::info("Ready! Press CTRL+C to stop.");
     while (run) { std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
+
+    // Remove CTRL+C handler
+    signal(SIGINT, SIG_DFL);
 
     // TODO: Stop sender thread
     if (sendThread.joinable()) { sendThread.join(); }
