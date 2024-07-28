@@ -381,7 +381,6 @@ namespace cli {
         // If the argument is a boolean
         if (type == VAL_TYPE_BOOLEAN) {
             // If no value follows it's not a valid boolean
-            printf("'%s'\n", *argv);
             if (!argc || !isValidBoolean(*argv)) {
                 // Assume the value is true
                 cmd.arguments[argName] = true;

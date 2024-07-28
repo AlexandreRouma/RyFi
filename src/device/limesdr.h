@@ -1,41 +1,38 @@
 #pragma once
-#include <thread>
-#include "dsp/stream.h"
-#include "dsp/types.h"
-#include <stddef.h>
+#ifdef BUILD_LIMESDR_SUPPORT
+#include "../device.h"
 #include <lime/LimeSuite.h>
 
-class LimeSDR {
-public:
-    LimeSDR(dsp::stream<dsp::complex_t>* in, double samplerate, double rxFrequency, double txFrequency);
+#define LIMESDR_DRIVER_NAME "limesdr"
 
-    ~LimeSDR();
+namespace dev {
+    class LimeSDRDriver : public Driver {
+    public:
+        /**
+         * Register the driver.
+        */
+        static void registerSelf();
 
-    void start();
+        /**
+         * List available devices.
+         * @return List of available devices.
+        */
+        std::vector<Info> list();
 
-    void stop();
+        // /**
+        //  * Open a device for receive.
+        //  * @param dev Identifier of the device to open.
+        //  * @return Receiver instance.
+        // */
+        // std::shared_ptr<Receiver> openRX(const std::string& identifier);
 
-    dsp::stream<dsp::complex_t> out;
-
-private:
-    void rxWorker();
-    void txWorker();
-
-    // Configuration
-    dsp::stream<dsp::complex_t>* in;
-    double samplerate;
-    double rxFrequency;
-    double txFrequency;
-
-    // Workers
-    std::thread rxWorkerThread;
-    std::thread txWorkerThread;
-
-    // Device
-    lms_device_t* dev;
-    lms_stream_t rxStream;
-    lms_stream_t txStream;
-
-    // Status
-    bool running = false;
-};
+        // /**
+        //  * Open a device for transmit.
+        //  * @param dev Identifier of the device to open.
+        //  * @return Transmitter instance.
+        // */
+        // std::shared_ptr<Transmitter> openTX(const std::string& identifier, dsp::stream<dsp::complex_t>* in);
+    private:
+    };
+}
+#endif
