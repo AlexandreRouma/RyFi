@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
         }
 
         // Create the TUN interface
-        std::string iface = cmd["device"];
+        std::string iface = cmd["tun"];
         flog::info("Creating the TUN interface '{}'...", iface);
         tun = std::make_shared<TUN>(iface);
 
@@ -187,16 +187,16 @@ int main(int argc, char** argv) {
         ryfi::Transmitter tx(TX_BAUDRATE, SDR_SAMPLERATE);
         dsp::loop::FastAGC<dsp::complex_t> agc(tx.out, 0.5, 1e6, 0.00001, 0.00001);
 
-        // Open the RX SDR
-        flog::info("Opening the RX SDR...");
+        // Open the RX device
+        flog::info("Opening the RX device...");
         auto rxd = dev::openRX(cmd["rxdev"], cmd["rxdev"]);
 
-        // Configure the RX SDR
-        flog::info("Configuring the RX SDR...");
+        // Configure the RX device
+        flog::info("Configuring the RX device...");
         rxd->tune(cmd["rxfreq"]);
 
-        // Open the TX SDR
-        flog::info("Opening the TX SDR...");
+        // Open the TX device
+        flog::info("Opening the TX device...");
         auto txd = dev::openTX(cmd["txdev"], cmd["rxdev"], &agc.out);
 
         // Intialize the RX DSP
@@ -215,11 +215,11 @@ int main(int argc, char** argv) {
         rx.start();
         ns.start();
 
-        flog::info("Starting the RX SDR...");
+        flog::info("Starting the RX device...");
         rxd->start();
 
-        // Start the TX SDR
-        flog::info("Starting the TX SDR...");
+        // Start the TX device
+        flog::info("Starting the TX device...");
         try {
             txd->start();
         }
@@ -245,12 +245,12 @@ int main(int argc, char** argv) {
         // TODO: Stop sender thread
         if (sendThread.joinable()) { sendThread.join(); }
 
-        // Stop the RX SDR
-        flog::info("Stopping the RX SDR...");
+        // Stop the RX device
+        flog::info("Stopping the RX device...");
         rxd->stop();
 
-        // Stop the TX SDR
-        flog::info("Stopping the RX SDR...");
+        // Stop the TX device
+        flog::info("Stopping the RX device...");
         txd->stop();
 
         // Stop the DSP
