@@ -63,13 +63,11 @@ namespace dev {
         dsp::stream<dsp::complex_t> out;
     
     protected:
-        double rxFreq;
         bool running = false;
     };
 
     class Transmitter {
     public:
-        Transmitter(dsp::stream<dsp::complex_t>* in);
         virtual ~Transmitter();
 
         /**
@@ -106,7 +104,6 @@ namespace dev {
 
     protected:
         dsp::stream<dsp::complex_t>* in;
-        double txFreq;
         bool running = false;
     };
 
@@ -158,7 +155,7 @@ namespace dev {
      * @param identifier Identifier of the device.
      * @return Receiver instance.
     */
-    std::shared_ptr<Receiver> openRX(const std::string& driver, const std::string& identifier);
+    std::shared_ptr<Receiver> openRX(const std::string& device);
 
     /**
      * Open a device for transmit.
@@ -166,6 +163,6 @@ namespace dev {
      * @param identifier Identifier of the device.
      * @return Transmitter instance.
     */
-    std::shared_ptr<Transmitter> openTX(const std::string& driver, const std::string& identifier, dsp::stream<dsp::complex_t>* in);
+    std::shared_ptr<Transmitter> openTX(const std::string& device, dsp::stream<dsp::complex_t>* in);
 }
 

@@ -2,8 +2,14 @@
 #include <map>
 #include <format>
 
+#include "flog/flog.h"
+
 namespace dev {
     std::map<std::string, std::unique_ptr<Driver>> drivers;
+
+    Receiver::~Receiver() {}
+
+    Transmitter::~Transmitter() {}
 
     std::shared_ptr<Receiver> Driver::openRX(const std::string& identifier) {
         throw std::runtime_error("This driver does not support receiving");
@@ -55,25 +61,60 @@ namespace dev {
         return list;
     }
 
-    std::shared_ptr<Receiver> openRX(const std::string& driver, const std::string& identifier) {
+    std::map<std::string, std::unique_ptr<Driver>>::iterator selectDevice(const std::string& device, std::string& ident) {
+        // Find the column
+        auto it = device.find(':');
+
+        // If none was found
+        std::string driver;
+        if (it == std::string::npos) {
+            // Set the driver as the given device and clear the identifier
+            driver = device;
+            ident.clear();
+        }
+        else {
+            // Split the device string into the two parts
+            driver = device.substr(0, it);
+            ident = device.substr(it+1);
+        }
+
         // Fetch the driver or throw error
         auto drvit = drivers.find(driver);
         if (drvit == drivers.end()) {
             throw std::runtime_error(std::format("Unknown device driver: '{}'", driver));
         }
 
-        // Open the device for RX
-        return drvit->second->openRX(identifier);
+        // If no identifier was given
+        if (ident.empty()) {
+            // Get the list of available devices from the driver
+            auto list = drvit->second->list();
+
+            // Throw an error if none is available
+            if (list.empty()) { throw std::runtime_error("Could not find any device using the selected driver"); }
+
+            // Select the first one
+            ident = list[0].identifier;
+        }
+
+        // Return the driver entry
+        return drvit;
     }
 
-    std::shared_ptr<Transmitter> openTX(const std::string& driver, const std::string& identifier, dsp::stream<dsp::complex_t>* in) {
-        // Fetch the driver or throw error
-        auto drvit = drivers.find(driver);
-        if (drvit == drivers.end()) {
-            throw std::runtime_error(std::format("Unknown device driver: '{}'", driver));
-        }
+    std::shared_ptr<Receiver> openRX(const std::string& device) {
+        // Get the driver and identifier
+        std::string ident;
+        auto drvit = selectDevice(device, ident);
 
         // Open the device for RX
-        return drvit->second->openTX(identifier, in);
+        return drvit->second->openRX(ident);
+    }
+
+    std::shared_ptr<Transmitter> openTX(const std::string& device, dsp::stream<dsp::complex_t>* in) {
+        // Get the driver and identifier
+        std::string ident;
+        auto drvit = selectDevice(device, ident);
+
+        // Open the device for TX
+        return drvit->second->openTX(ident, in);
     }
 }

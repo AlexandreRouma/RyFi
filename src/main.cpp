@@ -17,7 +17,9 @@
 #include "device/limesdr.h"
 #include <format>
 
-#define SDR_SAMPLERATE  1.5e6
+//#define SDR_SAMPLERATE  1.5e6
+
+#define SDR_SAMPLERATE  1.5*720e3
 
 #define RX_BAUDRATE     720e3
 #define RX_BANDWIDTH    800e3
@@ -27,7 +29,7 @@
 #define TX_FREQ         2315e6
 
 std::shared_ptr<TUN> tun;
-std::atomic_bool run;
+std::atomic_bool run = true;
 
 void intHandler(int dummy) {
     run = false;
@@ -169,6 +171,9 @@ int main(int argc, char** argv) {
         // Show info line
         flog::info("RyFi v" RYFI_VERSION " by Ryzerth ON5RYZ");
 
+        // Get the selected baudrate
+        double baudrate = cmd["baudrate"];
+
         // Check that a RX and TX device have been given
         std::string rxdev = cmd["rxdev"];
         std::string txdev = cmd["txdev"];
@@ -184,26 +189,32 @@ int main(int argc, char** argv) {
 
         // Intialize the TX DSP
         flog::info("Initialising the transmit DSP...");
-        ryfi::Transmitter tx(TX_BAUDRATE, SDR_SAMPLERATE);
+        ryfi::Transmitter tx(baudrate, SDR_SAMPLERATE);
         dsp::loop::FastAGC<dsp::complex_t> agc(tx.out, 0.5, 1e6, 0.00001, 0.00001);
 
         // Open the RX device
         flog::info("Opening the RX device...");
-        auto rxd = dev::openRX(cmd["rxdev"], cmd["rxdev"]);
+        auto rxd = dev::openRX(rxdev);
 
         // Configure the RX device
         flog::info("Configuring the RX device...");
         rxd->tune(cmd["rxfreq"]);
+        rxd->setSamplerate(SDR_SAMPLERATE);
 
         // Open the TX device
         flog::info("Opening the TX device...");
-        auto txd = dev::openTX(cmd["txdev"], cmd["rxdev"], &agc.out);
+        auto txd = dev::openTX(txdev, &agc.out);
+
+        // Configure the TX device
+        flog::info("Configuring the TX device...");
+        txd->tune(cmd["txfreq"]);
+        txd->setSamplerate(SDR_SAMPLERATE);
 
         // Intialize the RX DSP
         flog::info("Initialising the receive DSP...");
         dsp::tap lpTaps = dsp::taps::lowPass(RX_BANDWIDTH / 2.0, RX_BANDWIDTH / 20.0f, SDR_SAMPLERATE);
         dsp::filter::FIR<dsp::complex_t, float> lp(&rxd->out, lpTaps);
-        ryfi::Receiver rx(&lp.out, RX_BAUDRATE, SDR_SAMPLERATE);
+        ryfi::Receiver rx(&lp.out, baudrate, SDR_SAMPLERATE);
         rx.onPacket.bind(packetHandler);
         dsp::sink::Null<dsp::complex_t> ns(rx.softOut, NULL, NULL);
 
@@ -248,10 +259,12 @@ int main(int argc, char** argv) {
         // Stop the RX device
         flog::info("Stopping the RX device...");
         rxd->stop();
+        rxd->close();
 
         // Stop the TX device
-        flog::info("Stopping the RX device...");
+        flog::info("Stopping the TX device...");
         txd->stop();
+        txd->close();
 
         // Stop the DSP
         flog::info("Stopping the DSP...");
