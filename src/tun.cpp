@@ -1,4 +1,6 @@
 #include "tun.h"
+#include <stdexcept>
+
 #ifdef _WIN32
 
 #else

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <stdint.h>
 
 #define TUN_MAX_IP_PACKET_SIZE  65536
 
