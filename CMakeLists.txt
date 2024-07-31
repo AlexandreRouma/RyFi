@@ -17,14 +17,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE "vendor/")
 # Select C++20
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 
-# Define the hardware support
-if (OPT_BUILD_BLADERF_SUPPORT)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_BLADERF_SUPPORT)
-endif()
-if (OPT_BUILD_LIMESDR_SUPPORT)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_LIMESDR_SUPPORT)
-endif()
-
 # Statically link to libcorrect
 add_subdirectory("libcorrect/")
 target_include_directories(${PROJECT_NAME} PRIVATE "libcorrect/include")
@@ -62,7 +54,7 @@ if (MSVC)
     target_include_directories(${PROJECT_NAME} PRIVATE "C:/Program Files/PothosSDR/include/")
 
     # Volk
-    target_link_libraries(${PROJECT_NAME} PRIVATE volk bladeRF LimeSuite)
+    target_link_libraries(${PROJECT_NAME} PRIVATE volk)
 
     # FFTW3
     find_package(FFTW3f CONFIG REQUIRED)
@@ -70,27 +62,18 @@ if (MSVC)
 else()
     find_package(PkgConfig)
 
-    pkg_check_modules(FFTW3 REQUIRED fftw3f)
     pkg_check_modules(VOLK REQUIRED volk)
-    pkg_check_modules(LIBBLADERF REQUIRED libbladeRF)
 
     target_include_directories(${PROJECT_NAME} PRIVATE
-        ${FFTW3_INCLUDE_DIRS}
         ${VOLK_INCLUDE_DIRS}
-        ${LIBBLADERF_INCLUDE_DIRS}
     )
     
     target_link_directories(${PROJECT_NAME} PRIVATE
-        ${FFTW3_LIBRARY_DIRS}
         ${VOLK_LIBRARY_DIRS}
-        ${LIBBLADERF_LIBRARY_DIRS}
     )
 
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${FFTW3_LIBRARIES}
         ${VOLK_LIBRARIES}
-        ${LIBBLADERF_LIBRARIES}
-        LimeSuite
     )
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -98,3 +81,20 @@ else()
         target_include_directories(${PROJECT_NAME} PRIVATE "/usr/local/include")
     endif ()
 endif ()
+
+# Define the hardware support
+if (OPT_BUILD_BLADERF_SUPPORT)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_BLADERF_SUPPORT)
+    if (MSVC)
+        target_link_libraries(${PROJECT_NAME} PRIVATE bladeRF)
+    else ()
+        pkg_check_modules(LIBBLADERF REQUIRED libbladeRF)
+        target_include_directories(${PROJECT_NAME} PRIVATE ${LIBBLADERF_INCLUDE_DIRS})
+        target_link_directories(${PROJECT_NAME} PRIVATE ${LIBBLADERF_LIBRARY_DIRS})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBBLADERF_LIBRARIES})
+    endif ()
+endif()
+if (OPT_BUILD_LIMESDR_SUPPORT)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_LIMESDR_SUPPORT)
+    target_link_libraries(${PROJECT_NAME} PRIVATE LimeSuite)
+endif()
