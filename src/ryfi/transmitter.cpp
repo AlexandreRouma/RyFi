@@ -1,4 +1,5 @@
 #include "transmitter.h"
+#include "common.h"
 
 namespace ryfi {
     Transmitter::Transmitter() {}
@@ -19,7 +20,13 @@ namespace ryfi {
         framer.setInput(&conv.out);
         resamp.init(&framer.out, baudrate, samplerate);
 
-        rrcTaps = dsp::taps::rootRaisedCosine<float>(511, 0.6, baudrate, samplerate);
+        // Compute the number of RRC taps
+        int rrcCount = ceil(16.0 * (samplerate / baudrate));
+        if (!(rrcCount & 1)) { rrcCount--; }
+
+        // Compute the RRC taps
+        rrcTaps = dsp::taps::rootRaisedCosine<float>(rrcCount, RYFI_RRC_BETA, baudrate, samplerate);
+
         // Normalize the taps
         float tot = 0.0f;
         for (int i = 0; i < rrcTaps.size; i++) {
