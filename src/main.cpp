@@ -16,7 +16,6 @@
 #include "device/bladerf.h"
 #include "device/limesdr.h"
 #include "device/usrp.h"
-#include <format>
 
 //#define SDR_SAMPLERATE  1.5e6
 
@@ -94,8 +93,9 @@ int displayDeviceList() {
 
     // Display all of them
     for (const auto& d : list) {
-        std::string devName = std::format("{}:{}", d.driver, d.identifier);
-        printf(fmt, devName.c_str(), types[(int)d.type]);
+        char buf[512];
+        sprintf(buf, "%s:%s", d.driver.c_str(), d.identifier.c_str());
+        printf(fmt, buf, types[(int)d.type]);
     }
     printf("\n");
 

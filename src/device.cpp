@@ -1,6 +1,5 @@
 #include "device.h"
 #include <map>
-#include <format>
 
 #include "flog/flog.h"
 
@@ -22,7 +21,9 @@ namespace dev {
     void registerDriver(const std::string& name, std::unique_ptr<Driver> driver) {
         // Check that no driver with the given name already exists
         if (drivers.find(name) != drivers.end()) {
-            throw std::runtime_error(std::format("Cannot add driver, a driver with the name '{}' already exists", name));
+            char buf[512];
+            sprintf(buf, "Cannot add driver, a driver with the name '%s' already exists", name.c_str());
+            throw std::runtime_error(buf);
         }
 
         // Add the driver to the list
@@ -81,7 +82,9 @@ namespace dev {
         // Fetch the driver or throw error
         auto drvit = drivers.find(driver);
         if (drvit == drivers.end()) {
-            throw std::runtime_error(std::format("Unknown device driver: '{}'", driver));
+            char buf[512];
+            sprintf(buf, "Unknown device driver: '{}'", driver.c_str());
+            throw std::runtime_error(buf);
         }
 
         // If no identifier was given

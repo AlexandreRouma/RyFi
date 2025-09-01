@@ -1,7 +1,6 @@
 #ifdef BUILD_BLADERF_SUPPORT
 #include "bladerf.h"
 #include "flog/flog.h"
-#include <format>
 #include <algorithm>
 #include "flog/flog.h"
 
@@ -60,7 +59,9 @@ namespace dev {
 
         // Check that the samplerate was selected properly
         if (actualSr != round(samplerate)) {
-            throw std::runtime_error(std::format("The selected samplerate does not match the actual samplerate. Expected {} got {}", samplerate, actualSr)); 
+            char buf[512];
+            sprintf(buf, "The selected samplerate does not match the actual samplerate. Expected %lf got %lf", samplerate, actualSr);
+            throw std::runtime_error(buf); 
         }
 
         // Update the buffer size
@@ -180,7 +181,9 @@ namespace dev {
 
         // Check that the samplerate was selected properly
         if (actualSr != round(samplerate)) {
-            throw std::runtime_error(std::format("The selected samplerate does not match the actual samplerate. Expected {} got {}", samplerate, actualSr)); 
+            char buf[512];
+            sprintf(buf, "The selected samplerate does not match the actual samplerate. Expected %lf got %lf", samplerate, actualSr);
+            throw std::runtime_error(buf); 
         }
 
         // Update the buffer size

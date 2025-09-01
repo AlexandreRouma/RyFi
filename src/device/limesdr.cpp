@@ -1,6 +1,5 @@
 #ifdef BUILD_LIMESDR_SUPPORT
 #include "limesdr.h"
-#include <format>
 #include "flog/flog.h"
 
 namespace dev {
@@ -192,7 +191,9 @@ namespace dev {
 
         // Attempt to open the device
         lms_device_t* dev;
-        int err = LMS_Open(&dev, std::format("serial={}", identifier).c_str(), NULL);
+        char buf[512];
+        sprintf(buf, "serial=%s", identifier.c_str());
+        int err = LMS_Open(&dev, buf, NULL);
         if (err) { throw std::runtime_error("Failed to open device"); }
 
         // Create and append a new context entry

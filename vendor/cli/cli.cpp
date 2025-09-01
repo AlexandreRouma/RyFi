@@ -1,7 +1,6 @@
 #include "cli.h"
 #include <stdexcept>
 #include <string.h>
-#include <format>
 
 namespace cli {
     const std::vector<std::string> trueStrings = { "TRUE", "Y", "YES", "ON", "1" };
@@ -37,7 +36,7 @@ namespace cli {
                 uinteger = std::stoull(str);
             }
             catch (const std::exception& e) {
-                throw std::runtime_error(std::format("Expected an unsigned integer value, got '{}'", str));
+                throw std::runtime_error("Expected an unsigned integer value");
             }
             return;
         case VAL_TYPE_SIGNED_INTEGER:
@@ -46,7 +45,7 @@ namespace cli {
                 sinteger = std::stoll(str);
             }
             catch (const std::exception& e) {
-                throw std::runtime_error(std::format("Expected a signed integer value, got '{}'", str));
+                throw std::runtime_error("Expected a signed integer value");
             }
             return;
         case VAL_TYPE_FLOATING:
@@ -55,7 +54,7 @@ namespace cli {
                 floating = std::stod(str);
             }
             catch (const std::exception& e) {
-                throw std::runtime_error(std::format("Expected a floating point value, got '{}'", str));
+                throw std::runtime_error("Expected a floating point value");
             }
             return;
         case VAL_TYPE_BOOLEAN:
@@ -75,7 +74,7 @@ namespace cli {
             }
 
             // Invalid, throw error
-            throw std::runtime_error(std::format("Expected a boolean value, got '{}'", str));
+            throw std::runtime_error("Expected a boolean value");
             return;
         default:
             throw std::runtime_error("Unsupported type");
@@ -416,7 +415,7 @@ namespace cli {
                 std::string argName = arg.substr(2);
                 auto it = interface.arguments.find(argName);
                 if (it == interface.arguments.end()) {
-                    throw std::runtime_error(std::format("Unknown argument: '{}'", argName));
+                    throw std::runtime_error("Unknown argument");
                 }
 
                 // Parse the argument
@@ -434,7 +433,7 @@ namespace cli {
                     // Verify that the command admits the given alias
                     auto it = interface.aliases.find(c);
                     if (it == interface.aliases.end()) {
-                        throw std::runtime_error(std::format("Unknown argument: '{}'", c));
+                        throw std::runtime_error("Unknown argument");
                     }
 
                     // Fetch the argument descriptor
@@ -451,7 +450,7 @@ namespace cli {
                         }
 
                         // Non-boolean arguments are not allowed before the end of the compound argument
-                        throw std::runtime_error(std::format("Non boolean argument '{}' can only be at the end of a compound argument", c));
+                        throw std::runtime_error("Non boolean argumentcan only be at the end of a compound argument");
                     }
 
                     // Parse the argument
@@ -465,7 +464,7 @@ namespace cli {
                 // Verify that the command admits the given subcommand
                 auto it = interface.subcommands.find(arg);
                 if (it == interface.subcommands.end()) {
-                    throw std::runtime_error(std::format("Unknown sub-command: '{}'", arg));
+                    throw std::runtime_error("Unknown sub-command");
                 }
 
                 // Parse the subcommand and finish
