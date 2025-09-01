@@ -40,7 +40,7 @@ void packetHandler(ryfi::Packet pkt) {
     tun->send(pkt.data(), pkt.size());
 }
 
-void sendWorker(ryfi::Transmitter& tx) {
+void sendWorker(ryfi::Transmitter* tx) {
     // Allocate the buffer
     uint8_t* buf = new uint8_t[TUN_MAX_IP_PACKET_SIZE];
 
@@ -50,7 +50,7 @@ void sendWorker(ryfi::Transmitter& tx) {
         if (len <= 0) { break; }
 
         // Send the packet over the air
-        tx.send(ryfi::Packet(buf, len));
+        tx->send(ryfi::Packet(buf, len));
     }
 
     // Free the buffer
@@ -245,11 +245,11 @@ int main(int argc, char** argv) {
         }
 
         // Start the sender thread
-#ifdef WIN32
+#ifdef sdsdWIN32
         // Disabled on Windows due to lack of TUN support
         std::thread sendThread;
 #else
-        std::thread sendThread(sendWorker, tx);
+        std::thread sendThread(sendWorker, &tx);
 #endif
 
         // Set CTRL+C handler
