@@ -15,6 +15,7 @@
 #include "device.h"
 #include "device/bladerf.h"
 #include "device/limesdr.h"
+#include "device/usrp.h"
 #include <format>
 
 //#define SDR_SAMPLERATE  1.5e6
@@ -136,6 +137,9 @@ int main(int argc, char** argv) {
 #ifdef BUILD_LIMESDR_SUPPORT
         dev::LimeSDRDriver::registerSelf();
 #endif
+#ifdef BUILD_USRP_SUPPORT
+        dev::USRPDriver::registerSelf();
+#endif
 
         // Define the command line interface
         cli::Interface cli;
@@ -151,7 +155,7 @@ int main(int argc, char** argv) {
         cli.arg("udpdump",      'u', false,         "Dump RX samples to UDP for monitoring");
         cli.arg("udphost",      'a', "localhost",   "UDP host for RX sample dump");
         cli.arg("udpport",      'p', 1234,          "UDP port for RX sample dump");
-        cli.arg("genconfig",    0,   "",            "Save parameters to a configuration file and exit");
+        cli.arg("genconfig",     0,  "",            "Save parameters to a configuration file and exit");
 
         // Parse the command line
         cli::Command cmd = cli::parse(cli, argc, argv);
@@ -241,7 +245,12 @@ int main(int argc, char** argv) {
         }
 
         // Start the sender thread
-        std::thread sendThread;//(sendWorker, tx);
+#ifdef WIN32
+        // Disabled on Windows due to lack of TUN support
+        std::thread sendThread;
+#else
+        std::thread sendThread(sendWorker, tx);
+#endif
 
         // Set CTRL+C handler
         signal(SIGINT, intHandler);

@@ -4,6 +4,7 @@ project(ryfi)
 # Build options
 option(OPT_BUILD_BLADERF_SUPPORT "Support for BladeRF devices" ON)
 option(OPT_BUILD_LIMESDR_SUPPORT "Support for LimeSDR devices" ON)
+option(OPT_BUILD_USRP_SUPPORT    "Support for USRP devices"    ON)
 
 # Find all source files
 file(GLOB_RECURSE SRC "vendor/*.cpp" "src/*.cpp")
@@ -97,4 +98,21 @@ endif()
 if (OPT_BUILD_LIMESDR_SUPPORT)
     target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_LIMESDR_SUPPORT)
     target_link_libraries(${PROJECT_NAME} PRIVATE LimeSuite)
+endif()
+if (OPT_BUILD_USRP_SUPPORT)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE BUILD_USRP_SUPPORT)
+    if (MSVC)
+        # Lib path
+        target_link_directories(${PROJECT_NAME} PRIVATE "C:/Program Files/PothosSDR/bin/")
+
+        target_include_directories(${PROJECT_NAME} PRIVATE "C:/Program Files/PothosSDR/include/")
+
+        target_link_libraries(${PROJECT_NAME} PRIVATE uhd)
+    else (MSVC)
+        pkg_check_modules(LIBUHD REQUIRED uhd)
+
+        target_include_directories(${PROJECT_NAME} PRIVATE ${LIBUHD_INCLUDE_DIRS})
+        target_link_directories(${PROJECT_NAME} PRIVATE ${LIBUHD_LIBRARY_DIRS})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBUHD_LIBRARIES})
+    endif ()
 endif()

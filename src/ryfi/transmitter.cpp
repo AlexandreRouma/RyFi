@@ -20,6 +20,8 @@ namespace ryfi {
         framer.setInput(&conv.out);
         resamp.init(&framer.out, baudrate, samplerate);
 
+        // TODO: Wrong!!!! Need to upsample using RRC and then filter to the final channel
+
         // Compute the number of RRC taps
         int rrcCount = ceil(16.0 * (samplerate / baudrate));
         if (!(rrcCount & 1)) { rrcCount--; }
