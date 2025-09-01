@@ -83,7 +83,7 @@ namespace dev {
         auto drvit = drivers.find(driver);
         if (drvit == drivers.end()) {
             char buf[512];
-            sprintf(buf, "Unknown device driver: '{}'", driver.c_str());
+            sprintf(buf, "Unknown device driver: '%s'", driver.c_str());
             throw std::runtime_error(buf);
         }
 
