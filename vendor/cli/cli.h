@@ -130,16 +130,14 @@ namespace cli {
             std::string desc;
         };
 
-        struct SubCommand;
+        struct SubCommand {
+            std::shared_ptr<Interface> iface;
+            std::string desc;
+        };
 
         std::map<char, std::string> aliases;
         std::unordered_map<std::string, Argument> arguments;
         std::unordered_map<std::string, SubCommand> subcommands;
-    };
-
-    struct Interface::SubCommand {
-        Interface iface;
-        std::string desc;
     };
 
     class Command {

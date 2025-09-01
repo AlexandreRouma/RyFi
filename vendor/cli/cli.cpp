@@ -290,7 +290,7 @@ namespace cli {
         }
 
         // Save the interface of the subcommand
-        SubCommand scmd = { interface, description };
+        SubCommand scmd = { std::make_shared<Interface>(interface), description };
         subcommands[name] = scmd;
     }
 
@@ -468,7 +468,7 @@ namespace cli {
                 }
 
                 // Parse the subcommand and finish
-                cmd.subcommand = std::make_shared<Command>(parse(it->second.iface, ++argc, --argv));
+                cmd.subcommand = std::make_shared<Command>(parse(*(it->second.iface), ++argc, --argv));
                 break;
             }
 
