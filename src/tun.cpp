@@ -80,7 +80,8 @@ int TUN::recv(uint8_t* data, int maxLen, int timeout) {
 #ifdef _WIN32
     return -1;
 #else
-    
+    // Read a packet
+    return read(fd, data, maxLen);
 #endif
 }
 
