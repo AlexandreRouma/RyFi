@@ -1,14 +1,34 @@
 #include "transmitter.h"
+#include "common.h"
 
 namespace ryfi {
+    Transmitter::Transmitter() {}
+
     Transmitter::Transmitter(double baudrate, double samplerate) {
+        init(baudrate, samplerate);
+    }
+
+    Transmitter::~Transmitter() {
+        // Stop everything
+        stop();
+    }
+
+    void Transmitter::init(double baudrate, double samplerate) {
         // Initialize the DSP
         rs.setInput(&in);
         conv.setInput(&rs.out);
         framer.setInput(&conv.out);
         resamp.init(&framer.out, baudrate, samplerate);
 
-        rrcTaps = dsp::taps::rootRaisedCosine<float>(511, 0.6, baudrate, samplerate);
+        // TODO: Wrong!!!! Need to upsample using RRC and then filter to the final channel
+
+        // Compute the number of RRC taps
+        int rrcCount = ceil(16.0 * (samplerate / baudrate));
+        if (!(rrcCount & 1)) { rrcCount--; }
+
+        // Compute the RRC taps
+        rrcTaps = dsp::taps::rootRaisedCosine<float>(rrcCount, RYFI_RRC_BETA, baudrate, samplerate);
+
         // Normalize the taps
         float tot = 0.0f;
         for (int i = 0; i < rrcTaps.size; i++) {
@@ -20,11 +40,6 @@ namespace ryfi {
 
         rrc.init(&resamp.out, rrcTaps);
         out = &rrc.out;
-    }
-
-    Transmitter::~Transmitter() {
-        // Stop everything
-        stop();
     }
 
     void Transmitter::start() {

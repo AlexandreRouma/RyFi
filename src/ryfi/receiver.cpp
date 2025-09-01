@@ -1,5 +1,5 @@
 #include "receiver.h"
-
+#include "common.h"
 #include "flog/flog.h"
 
 namespace ryfi {
@@ -15,8 +15,11 @@ namespace ryfi {
     }
 
     void Receiver::init(dsp::stream<dsp::complex_t>* in, double baudrate, double samplerate) {
+        // Compute the number of RRC taps
+        int rrcCount = ceil(16.0 * (samplerate / baudrate));
+
         // Initialize the DSP
-        demod.init(in, baudrate, samplerate, 31, 0.6, 0.1f, 0.005f, 1e-6, 0.01);
+        demod.init(in, baudrate, samplerate, rrcCount, RYFI_RRC_BETA, 0.1f, 0.005f, 1e-6, 0.01);
         doubler.init(&demod.out);
         softOut = &doubler.outA;
         deframer.setInput(&doubler.outB);

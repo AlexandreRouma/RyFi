@@ -53,6 +53,9 @@ namespace ryfi {
     }
 
     Packet& Packet::operator=(Packet&& b) {
+        // Free current buffer if it exists
+        if (_content) { delete[] _content; }
+
         // Move members
         _content = b._content;
         _size = b._size;

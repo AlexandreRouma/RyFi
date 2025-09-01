@@ -1,0 +1,3 @@
+- Switch to RRC upsampling for correct impulse response
+- Give bandwidth hints to the SDR for better performance
+- Fix the non-generality of the USRP driver
