@@ -165,4 +165,3 @@ namespace dev {
     */
     std::shared_ptr<Transmitter> openTX(const std::string& device, dsp::stream<dsp::complex_t>* in);
 }
-
