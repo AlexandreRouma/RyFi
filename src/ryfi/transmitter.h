@@ -1,6 +1,5 @@
 #pragma once
-#include "dsp/multirate/rational_resampler.h"
-#include "dsp/taps/root_raised_cosine.h"
+#include "dsp/multirate/rrc_interpolator.h"
 #include "dsp/filter/fir.h"
 #include "packet.h"
 #include "frame.h"
@@ -69,10 +68,7 @@ namespace ryfi {
         RSEncoder rs;
         ConvEncoder conv;
         Framer framer;
-        dsp::multirate::RationalResampler<dsp::complex_t> resamp;
-        dsp::tap<float> rrcTaps;
-        dsp::filter::FIR<dsp::complex_t, float> rrc;
-
+        dsp::multirate::RRCInterpolator<dsp::complex_t> resamp;
         bool running = false;
         std::thread workerThread;
     };

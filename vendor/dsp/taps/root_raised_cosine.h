@@ -9,19 +9,43 @@ namespace dsp::taps {
         // Allocate taps
         tap<T> taps = taps::alloc<T>(count);
         
-        // Generate taps
-        double half = (double)count / 2.0;
+        // // Generate taps
+        // double half = (double)count / 2.0;
+        // double limit = Ts / (4.0 * beta);
+        // for (int i = 0; i < count; i++) {
+        //     double t = (double)i - half + 0.5;
+        //     if (t == 0.0) {
+        //         taps.taps[i] = (1.0 + beta*(4.0/DB_M_PI - 1.0)) / Ts;
+        //     }
+        //     else if (t == limit || t == -limit) {
+        //         taps.taps[i] = ((1.0 + 2.0/DB_M_PI)*sin(DB_M_PI/(4.0*beta)) + (1.0 - 2.0/DB_M_PI)*cos(DB_M_PI/(4.0*beta))) * beta/(Ts*DB_M_SQRT2);
+        //     }
+        //     else {
+        //         taps.taps[i] = ((sin((1.0 - beta)*DB_M_PI*t/Ts) + cos((1.0 + beta)*DB_M_PI*t/Ts)*4.0*beta*t/Ts) / ((1.0 - (4.0*beta*t/Ts)*(4.0*beta*t/Ts))*DB_M_PI*t/Ts)) / Ts;
+        //     }
+        // }
+
+        double invTs = 1.0 / Ts;
+        double half = ((double)count - 1.0) / 2.0;
         double limit = Ts / (4.0 * beta);
+        double mlimit = -limit;
+        int halfId = (count & 1) ? (count / 2) : -1;
         for (int i = 0; i < count; i++) {
-            double t = (double)i - half + 0.5;
-            if (t == 0.0) {
-                taps.taps[i] = (1.0 + beta*(4.0/DB_M_PI - 1.0)) / Ts;
+            // Compute the time for the tap
+            double t = (double)i - half;
+
+            // Adimensionalize the time
+            double x = t * invTs;
+
+            // Generate depending on x/t/i
+            if (i == halfId) {
+                taps.taps[i] = invTs * (1.0 + beta*((4.0 / DB_M_PI) - 1.0));
             }
-            else if (t == limit || t == -limit) {
-                taps.taps[i] = ((1.0 + 2.0/DB_M_PI)*sin(DB_M_PI/(4.0*beta)) + (1.0 - 2.0/DB_M_PI)*cos(DB_M_PI/(4.0*beta))) * beta/(Ts*DB_M_SQRT2);
+            else if (t == limit || t == mlimit) {
+                taps.taps[i] = (beta / (Ts * DB_M_SQRT2)) * ((1.0 + (2.0/DB_M_PI))*sin(DB_M_PI/(4.0*beta)) + (1.0 - (2.0/DB_M_PI))*cos(DB_M_PI/(4.0*beta)));
             }
             else {
-                taps.taps[i] = ((sin((1.0 - beta)*DB_M_PI*t/Ts) + cos((1.0 + beta)*DB_M_PI*t/Ts)*4.0*beta*t/Ts) / ((1.0 - (4.0*beta*t/Ts)*(4.0*beta*t/Ts))*DB_M_PI*t/Ts)) / Ts;
+                taps.taps[i] = invTs * (sin(DB_M_PI*x*(1.0 - beta)) + 4.0*beta*x*cos(DB_M_PI*x*(1.0 + beta))) / (DB_M_PI*x*(1.0 - (4.0*beta*x)*(4.0*beta*x)));
             }
         }
 

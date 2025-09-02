@@ -16,6 +16,7 @@ namespace dsp::multirate {
             _symbolrate = symbolrate;
             _samplerate = samplerate;
             _rrcTapCount = rrcTapCount;
+            _rrcBeta = rrcBeta;
 
             rrcTaps = taps::rootRaisedCosine<float>(_rrcTapCount, rrcBeta, _symbolrate, _samplerate);
             resamp.init(NULL, 1, 1, rrcTaps);

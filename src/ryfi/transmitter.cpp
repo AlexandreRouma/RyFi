@@ -18,28 +18,8 @@ namespace ryfi {
         rs.setInput(&in);
         conv.setInput(&rs.out);
         framer.setInput(&conv.out);
-        resamp.init(&framer.out, baudrate, samplerate);
-
-        // TODO: Wrong!!!! Need to upsample using RRC and then filter to the final channel
-
-        // Compute the number of RRC taps
-        int rrcCount = ceil(16.0 * (samplerate / baudrate));
-        if (!(rrcCount & 1)) { rrcCount--; }
-
-        // Compute the RRC taps
-        rrcTaps = dsp::taps::rootRaisedCosine<float>(rrcCount, RYFI_RRC_BETA, baudrate, samplerate);
-
-        // Normalize the taps
-        float tot = 0.0f;
-        for (int i = 0; i < rrcTaps.size; i++) {
-            tot += rrcTaps.taps[i];
-        }
-        for (int i = 0; i < rrcTaps.size; i++) {
-            rrcTaps.taps[i] /= tot;
-        }
-
-        rrc.init(&resamp.out, rrcTaps);
-        out = &rrc.out;
+        resamp.init(&framer.out, baudrate, samplerate, RYFI_RRC_BETA, 63);
+        out = &resamp.out;
     }
 
     void Transmitter::start() {
@@ -54,7 +34,6 @@ namespace ryfi {
         conv.start();
         framer.start();
         resamp.start();
-        rrc.start();
 
         // Update the running state
         running = true;
@@ -74,7 +53,6 @@ namespace ryfi {
         conv.stop();
         framer.stop();
         resamp.stop();
-        rrc.stop();
 
         // Update the running state
         running = false;
