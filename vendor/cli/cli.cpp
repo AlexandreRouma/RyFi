@@ -1,6 +1,7 @@
 #include "cli.h"
 #include <stdexcept>
 #include <string.h>
+#include <algorithm>
 
 namespace cli {
     const std::vector<std::string> trueStrings = { "TRUE", "Y", "YES", "ON", "1" };

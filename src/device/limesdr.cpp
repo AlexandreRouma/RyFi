@@ -1,6 +1,7 @@
 #ifdef BUILD_LIMESDR_SUPPORT
 #include "limesdr.h"
 #include "flog/flog.h"
+#include <algorithm>
 
 namespace dev {
     LimeSDRReceiver::LimeSDRReceiver(LimeSDRDriver* drv, lms_device_t* dev, int channel) {
