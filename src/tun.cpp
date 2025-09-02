@@ -1,6 +1,6 @@
 #include "tun.h"
 #include <stdexcept>
-
+#include "flog/flog.h"
 #ifdef _WIN32
 
 #else
@@ -87,6 +87,7 @@ int TUN::recv(uint8_t* data, int maxLen, int timeout) {
 
 int TUN::send(const uint8_t* data, int len) {
 #ifdef _WIN32
+    flog::debug("Got {} bytes packet!", len);
     return -1;
 #else
     // Send the packet
